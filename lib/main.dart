@@ -16,13 +16,17 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         useMaterial3: true,
+        scaffoldBackgroundColor: const Color(0xFFF0F2F5),
         colorScheme: ColorScheme.fromSeed(
-          seedColor: Colors.blueAccent,
-          brightness: Brightness.light,
+          seedColor: const Color(0xFF91A6FF),
+          primary: const Color(0xFF91A6FF),
+          surface: const Color(0xFFF0F2F5),
         ),
         appBarTheme: const AppBarTheme(
           centerTitle: false,
           elevation: 0,
+          backgroundColor: Color(0xFFF0F2F5),
+          foregroundColor: Color(0xFF4A4A4A),
         ),
       ),
       home: const HomeScreen(),

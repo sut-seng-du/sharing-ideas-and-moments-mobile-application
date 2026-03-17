@@ -3,6 +3,7 @@ import 'dart:io';
 import '../models/message.dart';
 import '../services/database_helper.dart';
 import '../services/image_service.dart';
+import '../widgets/clay_container.dart';
 
 class MessageScreen extends StatefulWidget {
   final Message? message;
@@ -67,73 +68,100 @@ class _MessageScreenState extends State<MessageScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
       appBar: AppBar(
-        title: Text(widget.message == null ? 'New Message' : 'Edit Message'),
-        elevation: 0,
-        backgroundColor: Colors.white,
-        foregroundColor: Colors.black,
+        title: Text(widget.message == null ? 'New Memory' : 'Edit Memory', style: const TextStyle(fontWeight: FontWeight.w800)),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.check),
-            onPressed: _saveMessage,
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: ClayContainer(
+              color: const Color(0xFF91A6FF),
+              borderRadius: 12,
+              depth: 4,
+              spread: 2,
+              child: IconButton(
+                icon: const Icon(Icons.check, color: Colors.white),
+                onPressed: _saveMessage,
+              ),
+            ),
           ),
+          const SizedBox(width: 8),
         ],
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(24.0),
         child: Form(
           key: _formKey,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              TextFormField(
-                controller: _titleController,
-                style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-                decoration: const InputDecoration(
-                  hintText: 'Title',
-                  border: InputBorder.none,
+              ClayContainer(
+                color: Theme.of(context).scaffoldBackgroundColor,
+                borderRadius: 20,
+                depth: 8,
+                spread: 4,
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: TextFormField(
+                  controller: _titleController,
+                  style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Color(0xFF4A4A4A)),
+                  decoration: const InputDecoration(
+                    hintText: 'Title',
+                    border: InputBorder.none,
+                  ),
+                  validator: (v) => v == null || v.isEmpty ? 'Title is required' : null,
                 ),
-                validator: (v) => v == null || v.isEmpty ? 'Title is required' : null,
               ),
-              const Divider(),
-              TextFormField(
-                controller: _contentController,
-                maxLines: null,
-                style: const TextStyle(fontSize: 16),
-                decoration: const InputDecoration(
-                  hintText: 'Share your thoughts...',
-                  border: InputBorder.none,
+              const SizedBox(height: 24),
+              ClayContainer(
+                color: Theme.of(context).scaffoldBackgroundColor,
+                borderRadius: 20,
+                depth: 8,
+                spread: 4,
+                padding: const EdgeInsets.all(20),
+                child: TextFormField(
+                  controller: _contentController,
+                  maxLines: 8,
+                  style: const TextStyle(fontSize: 16, color: Color(0xFF4A4A4A), height: 1.5),
+                  decoration: const InputDecoration(
+                    hintText: 'What\'s on your mind?',
+                    border: InputBorder.none,
+                  ),
+                  validator: (v) => v == null || v.isEmpty ? 'Content is required' : null,
                 ),
-                validator: (v) => v == null || v.isEmpty ? 'Content is required' : null,
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 24),
               if (_imagePath != null)
-                Stack(
-                  children: [
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(12),
-                      child: Image.file(
-                        File(_imagePath!),
-                        width: double.infinity,
-                        height: 250,
-                        fit: BoxFit.cover,
-                      ),
-                    ),
-                    Positioned(
-                      top: 8,
-                      right: 8,
-                      child: CircleAvatar(
-                        backgroundColor: Colors.black54,
-                        child: IconButton(
-                          icon: const Icon(Icons.close, color: Colors.white),
-                          onPressed: () => setState(() => _imagePath = null),
+                ClayContainer(
+                  color: Theme.of(context).scaffoldBackgroundColor,
+                  borderRadius: 20,
+                  depth: 10,
+                  spread: 5,
+                  child: Stack(
+                    children: [
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(20),
+                        child: Image.file(
+                          File(_imagePath!),
+                          width: double.infinity,
+                          height: 200,
+                          fit: BoxFit.cover,
                         ),
                       ),
-                    ),
-                  ],
+                      Positioned(
+                        top: 10,
+                        right: 10,
+                        child: GestureDetector(
+                          onTap: () => setState(() => _imagePath = null),
+                          child: Container(
+                            padding: const EdgeInsets.all(4),
+                            decoration: const BoxDecoration(color: Colors.white70, shape: BoxShape.circle),
+                            child: const Icon(Icons.close, size: 20, color: Colors.black),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 32),
               Row(
                 children: [
                   _MediaButton(
@@ -141,7 +169,7 @@ class _MessageScreenState extends State<MessageScreen> {
                     label: 'Gallery',
                     onTap: () => _pickImage(false),
                   ),
-                  const SizedBox(width: 12),
+                  const SizedBox(width: 20),
                   _MediaButton(
                     icon: Icons.camera_alt,
                     label: 'Camera',
@@ -167,21 +195,19 @@ class _MediaButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Expanded(
-      child: InkWell(
+      child: GestureDetector(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(12),
-        child: Container(
-          padding: const EdgeInsets.symmetric(vertical: 16),
-          decoration: BoxDecoration(
-            color: Colors.blue.withOpacity(0.05),
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: Colors.blue.withOpacity(0.1)),
-          ),
+        child: ClayContainer(
+          color: Theme.of(context).scaffoldBackgroundColor,
+          borderRadius: 20,
+          depth: 10,
+          spread: 5,
+          padding: const EdgeInsets.symmetric(vertical: 20),
           child: Column(
             children: [
-              Icon(icon, color: Colors.blue),
-              const SizedBox(height: 4),
-              Text(label, style: const TextStyle(color: Colors.blue, fontWeight: FontWeight.w600)),
+              Icon(icon, color: const Color(0xFF91A6FF), size: 28),
+              const SizedBox(height: 8),
+              Text(label, style: const TextStyle(color: Color(0xFF4A4A4A), fontWeight: FontWeight.w700)),
             ],
           ),
         ),

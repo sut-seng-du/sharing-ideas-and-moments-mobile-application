@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 import 'dart:io';
 import '../models/message.dart';
 import '../services/database_helper.dart';
+import '../widgets/clay_container.dart';
 import 'message_screen.dart';
 import 'detail_screen.dart';
 
@@ -62,45 +63,35 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F7FA),
       appBar: AppBar(
         title: _isSelectionMode
             ? Text('${_selectedIds.length} selected')
-            : const Text('Sim Blog', style: TextStyle(fontWeight: FontWeight.bold)),
-        elevation: 0,
-        backgroundColor: Colors.white,
-        foregroundColor: Colors.black,
+            : const Text('Sharing Ideas and Moments', style: TextStyle(fontWeight: FontWeight.w900, fontSize: 22)),
         actions: [
           if (_isSelectionMode)
             IconButton(
               icon: const Icon(Icons.delete_outline),
               onPressed: _deleteSelected,
             )
-          else
-            IconButton(
-              icon: const Icon(Icons.search),
-              onPressed: () {
-                // Focus search or show search bar
-              },
-            ),
         ],
         bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(60),
+          preferredSize: const Size.fromHeight(80),
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-            child: TextField(
-              controller: _searchController,
-              onChanged: (value) => setState(() => _searchQuery = value),
-              decoration: InputDecoration(
-                hintText: 'Search messages...',
-                prefixIcon: const Icon(Icons.search),
-                filled: true,
-                fillColor: const Color(0xFFEDF2F7),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide.none,
+            padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 12.0),
+            child: ClayContainer(
+              color: Theme.of(context).scaffoldBackgroundColor,
+              borderRadius: 20,
+              depth: 8,
+              spread: 4,
+              child: TextField(
+                controller: _searchController,
+                onChanged: (value) => setState(() => _searchQuery = value),
+                decoration: const InputDecoration(
+                  hintText: 'Search memories...',
+                  prefixIcon: Icon(Icons.search, color: Color(0xFF91A6FF)),
+                  border: InputBorder.none,
+                  contentPadding: EdgeInsets.symmetric(vertical: 15),
                 ),
-                contentPadding: const EdgeInsets.symmetric(vertical: 0),
               ),
             ),
           ),
@@ -119,9 +110,9 @@ class _HomeScreenState extends State<HomeScreen> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.notes, size: 64, color: Colors.grey[400]),
+                  Icon(Icons.bubble_chart_outlined, size: 80, color: const Color(0xFF91A6FF).withOpacity(0.3)),
                   const SizedBox(height: 16),
-                  Text('No messages found', style: TextStyle(color: Colors.grey[600], fontSize: 18)),
+                  Text('No memories yet...', style: TextStyle(color: Colors.grey[600], fontSize: 18, fontWeight: FontWeight.w500)),
                 ],
               ),
             );
@@ -129,7 +120,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
           final messages = snapshot.data!;
           return ListView.builder(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
             itemCount: messages.length,
             itemBuilder: (context, index) {
               final message = messages[index];
@@ -149,64 +140,70 @@ class _HomeScreenState extends State<HomeScreen> {
                     ).then((_) => setState(() {}));
                   }
                 },
-                child: Hero(
-                  tag: 'msg_${message.id}',
-                  child: Card(
-                    elevation: 0,
-                    margin: const EdgeInsets.only(bottom: 12),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
-                      side: BorderSide(
-                        color: isSelected ? Colors.blue : Colors.transparent,
-                        width: 2,
-                      ),
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Expanded(
-                                child: Text(
-                                  message.title,
-                                  style: const TextStyle(
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.bold,
+                child: Padding(
+                  padding: const EdgeInsets.only(bottom: 24),
+                  child: Hero(
+                    tag: 'msg_${message.id}',
+                    child: ClayContainer(
+                      color: isSelected ? const Color(0xFFE0E5EC) : Theme.of(context).scaffoldBackgroundColor,
+                      borderRadius: 30,
+                      depth: isSelected ? 4 : 12,
+                      spread: 6,
+                      child: Padding(
+                        padding: const EdgeInsets.all(20.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Expanded(
+                                  child: Text(
+                                    message.title,
+                                    style: const TextStyle(
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.w800,
+                                      color: Color(0xFF4A4A4A),
+                                    ),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
                                   ),
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
+                                ),
+                                Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFF91A6FF).withOpacity(0.1),
+                                    borderRadius: BorderRadius.circular(20),
+                                  ),
+                                  child: Text(
+                                    DateFormat('MMM d').format(message.createdAt),
+                                    style: const TextStyle(color: Color(0xFF91A6FF), fontSize: 10, fontWeight: FontWeight.bold),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 12),
+                            Text(
+                              message.content,
+                              style: TextStyle(color: Colors.grey[700], height: 1.5, fontSize: 15),
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            if (message.imagePath != null) ...[
+                              const SizedBox(height: 16),
+                              ClipRRect(
+                                borderRadius: BorderRadius.circular(20),
+                                child: Image.file(
+                                  File(message.imagePath!),
+                                  height: 160,
+                                  width: double.infinity,
+                                  fit: BoxFit.cover,
+                                  errorBuilder: (c, e, s) => const SizedBox.shrink(),
                                 ),
                               ),
-                              Text(
-                                DateFormat('MMM d, h:mm a').format(message.createdAt),
-                                style: TextStyle(color: Colors.grey[600], fontSize: 12),
-                              ),
                             ],
-                          ),
-                          const SizedBox(height: 8),
-                          Text(
-                            message.content,
-                            style: TextStyle(color: Colors.grey[800], height: 1.4),
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                          if (message.imagePath != null) ...[
-                            const SizedBox(height: 12),
-                            ClipRRect(
-                              borderRadius: BorderRadius.circular(8),
-                              child: Image.file(
-                                File(message.imagePath!),
-                                height: 120,
-                                width: double.infinity,
-                                fit: BoxFit.cover,
-                                errorBuilder: (c, e, s) => const SizedBox.shrink(),
-                              ),
-                            ),
                           ],
-                        ],
+                        ),
                       ),
                     ),
                   ),
@@ -216,16 +213,25 @@ class _HomeScreenState extends State<HomeScreen> {
           );
         },
       ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => const MessageScreen()),
-          ).then((_) => setState(() {}));
-        },
-        label: const Text('New Message'),
-        icon: const Icon(Icons.add),
-        backgroundColor: Colors.blueAccent,
+      floatingActionButton: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: ClayContainer(
+          color: const Color(0xFF91A6FF),
+          borderRadius: 50,
+          depth: 10,
+          spread: 5,
+          child: FloatingActionButton(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const MessageScreen()),
+              ).then((_) => setState(() {}));
+            },
+            elevation: 0,
+            backgroundColor: Colors.transparent,
+            child: const Icon(Icons.add, color: Colors.white, size: 32),
+          ),
+        ),
       ),
     );
   }
