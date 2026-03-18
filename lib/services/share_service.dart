@@ -3,15 +3,17 @@ import '../models/message.dart';
 
 class ShareService {
   static Future<void> shareMessage(Message message) async {
-    final String text = '${message.title}\n\n${message.content}';
-    
-    if (message.imagePath != null && message.imagePath!.isNotEmpty) {
+    if (message.imagePaths.isNotEmpty) {
       await Share.shareXFiles(
-        [XFile(message.imagePath!)],
-        text: text,
+        message.imagePaths.map((path) => XFile(path)).toList(),
+        text: message.content,
+        subject: message.title,
       );
     } else {
-      await Share.share(text);
+      await Share.share(
+        message.content,
+        subject: message.title,
+      );
     }
   }
 }

@@ -17,15 +17,25 @@ class _MessageScreenState extends State<MessageScreen> {
   final _formKey = GlobalKey<FormState>();
   late TextEditingController _titleController;
   late TextEditingController _contentController;
-  String? _imagePath;
+  List<String> _imagePaths = [];
+  String? _selectedCategory;
   final ImageService _imageService = ImageService();
+
+  List<String> _categories = [];
 
   @override
   void initState() {
     super.initState();
     _titleController = TextEditingController(text: widget.message?.title ?? '');
     _contentController = TextEditingController(text: widget.message?.content ?? '');
-    _imagePath = widget.message?.imagePath;
+    _imagePaths = List<String>.from(widget.message?.imagePaths ?? []);
+    _selectedCategory = widget.message?.category;
+    _loadCategories();
+  }
+
+  Future<void> _loadCategories() async {
+    final categories = await DatabaseHelper.instance.getCategories();
+    setState(() => _categories = categories);
   }
 
   @override
@@ -41,7 +51,35 @@ class _MessageScreenState extends State<MessageScreen> {
         : await _imageService.pickImageFromGallery();
     
     if (path != null) {
-      setState(() => _imagePath = path);
+      setState(() => _imagePaths.add(path));
+    }
+  }
+
+  Future<void> _addNewCategory() async {
+    final controller = TextEditingController();
+    final name = await showDialog<String>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('New Category'),
+        content: TextField(
+          controller: controller,
+          decoration: const InputDecoration(hintText: 'Category Name (e.g. 🎒 Travel)'),
+          autofocus: true,
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context), child: const Text('CANCEL')),
+          TextButton(
+            onPressed: () => Navigator.pop(context, controller.text),
+            child: const Text('ADD'),
+          ),
+        ],
+      ),
+    );
+
+    if (name != null && name.isNotEmpty) {
+      await DatabaseHelper.instance.insertCategory(name);
+      await _loadCategories();
+      setState(() => _selectedCategory = name);
     }
   }
 
@@ -51,7 +89,8 @@ class _MessageScreenState extends State<MessageScreen> {
         id: widget.message?.id,
         title: _titleController.text,
         content: _contentController.text,
-        imagePath: _imagePath,
+        imagePaths: _imagePaths,
+        category: _selectedCategory,
         createdAt: widget.message?.createdAt ?? DateTime.now(),
       );
 
@@ -69,18 +108,20 @@ class _MessageScreenState extends State<MessageScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.message == null ? 'New Memory' : 'Edit Memory', style: const TextStyle(fontWeight: FontWeight.w800)),
+        title: Text(widget.message == null ? 'New Moments' : 'Edit Moments', style: const TextStyle(fontWeight: FontWeight.w800)),
         actions: [
           Padding(
             padding: const EdgeInsets.all(8.0),
-            child: ClayContainer(
-              color: const Color(0xFF91A6FF),
-              borderRadius: 12,
-              depth: 4,
-              spread: 2,
-              child: IconButton(
-                icon: const Icon(Icons.check, color: Colors.white),
-                onPressed: _saveMessage,
+            child: GestureDetector(
+              onTap: _saveMessage,
+              behavior: HitTestBehavior.opaque,
+              child: ClayContainer(
+                color: const Color(0xFF91A6FF),
+                borderRadius: 12,
+                depth: 4,
+                spread: 2,
+                padding: const EdgeInsets.all(8),
+                child: const Icon(Icons.check, color: Colors.white, size: 28),
               ),
             ),
           ),
@@ -110,7 +151,61 @@ class _MessageScreenState extends State<MessageScreen> {
                   validator: (v) => v == null || v.isEmpty ? 'Title is required' : null,
                 ),
               ),
-              const SizedBox(height: 24),
+              const SizedBox(height: 8),
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 4),
+                child: SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  clipBehavior: Clip.none,
+                  padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 4),
+                  child: Row(
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.only(right: 12),
+                        child: GestureDetector(
+                          onTap: _addNewCategory,
+                          child: ClayContainer(
+                            color: Theme.of(context).scaffoldBackgroundColor,
+                            borderRadius: 15,
+                            depth: 6,
+                            spread: 3,
+                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                            child: const Icon(Icons.add, size: 20, color: Color(0xFF91A6FF)),
+                          ),
+                        ),
+                      ),
+                      ..._categories.map((category) {
+                        final isSelected = _selectedCategory == category;
+                        return Padding(
+                          padding: const EdgeInsets.only(right: 12),
+                          child: GestureDetector(
+                            onTap: () {
+                              setState(() {
+                                _selectedCategory = isSelected ? null : category;
+                              });
+                            },
+                            child: ClayContainer(
+                              color: isSelected ? const Color(0xFF91A6FF) : Theme.of(context).scaffoldBackgroundColor,
+                              borderRadius: 15,
+                              depth: isSelected ? 2 : 6,
+                              spread: 3,
+                              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                              child: Text(
+                                category,
+                                style: TextStyle(
+                                  color: isSelected ? Colors.white : const Color(0xFF4A4A4A),
+                                  fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                                ),
+                              ),
+                            ),
+                          ),
+                        );
+                      }).toList(),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(height: 8),
               ClayContainer(
                 color: Theme.of(context).scaffoldBackgroundColor,
                 borderRadius: 20,
@@ -129,36 +224,48 @@ class _MessageScreenState extends State<MessageScreen> {
                 ),
               ),
               const SizedBox(height: 24),
-              if (_imagePath != null)
-                ClayContainer(
-                  color: Theme.of(context).scaffoldBackgroundColor,
-                  borderRadius: 20,
-                  depth: 10,
-                  spread: 5,
-                  child: Stack(
-                    children: [
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(20),
-                        child: Image.file(
-                          File(_imagePath!),
-                          width: double.infinity,
-                          height: 200,
-                          fit: BoxFit.cover,
-                        ),
-                      ),
-                      Positioned(
-                        top: 10,
-                        right: 10,
-                        child: GestureDetector(
-                          onTap: () => setState(() => _imagePath = null),
-                          child: Container(
-                            padding: const EdgeInsets.all(4),
-                            decoration: const BoxDecoration(color: Colors.white70, shape: BoxShape.circle),
-                            child: const Icon(Icons.close, size: 20, color: Colors.black),
+              if (_imagePaths.isNotEmpty)
+                SizedBox(
+                  height: 120,
+                  child: ListView.builder(
+                    scrollDirection: Axis.horizontal,
+                    itemCount: _imagePaths.length,
+                    itemBuilder: (context, index) {
+                      return Padding(
+                        padding: const EdgeInsets.only(right: 16),
+                        child: ClayContainer(
+                          color: Theme.of(context).scaffoldBackgroundColor,
+                          borderRadius: 20,
+                          depth: 8,
+                          spread: 4,
+                          child: Stack(
+                            children: [
+                              ClipRRect(
+                                borderRadius: BorderRadius.circular(20),
+                                child: Image.file(
+                                  File(_imagePaths[index]),
+                                  width: 120,
+                                  height: 120,
+                                  fit: BoxFit.cover,
+                                ),
+                              ),
+                              Positioned(
+                                top: 5,
+                                right: 5,
+                                child: GestureDetector(
+                                  onTap: () => setState(() => _imagePaths.removeAt(index)),
+                                  child: Container(
+                                    padding: const EdgeInsets.all(2),
+                                    decoration: const BoxDecoration(color: Colors.white70, shape: BoxShape.circle),
+                                    child: const Icon(Icons.close, size: 16, color: Colors.black),
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
                         ),
-                      ),
-                    ],
+                      );
+                    },
                   ),
                 ),
               const SizedBox(height: 32),

@@ -18,6 +18,7 @@ class _HomeScreenState extends State<HomeScreen> {
   final List<int> _selectedIds = [];
   bool _isSelectionMode = false;
   String _searchQuery = '';
+  String? _selectedCategoryFilter;
   final TextEditingController _searchController = TextEditingController();
 
   @override
@@ -42,8 +43,8 @@ class _HomeScreenState extends State<HomeScreen> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Delete Messages'),
-        content: Text('Are you sure you want to delete ${_selectedIds.length} messages?'),
+        title: const Text('Delete Moments'),
+        content: Text('Are you sure you want to delete ${_selectedIds.length} moments?'),
         actions: [
           TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('CANCEL')),
           TextButton(onPressed: () => Navigator.pop(context, true), child: const Text('DELETE')),
@@ -75,32 +76,82 @@ class _HomeScreenState extends State<HomeScreen> {
             )
         ],
         bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(80),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 12.0),
-            child: ClayContainer(
-              color: Theme.of(context).scaffoldBackgroundColor,
-              borderRadius: 20,
-              depth: 8,
-              spread: 4,
-              child: TextField(
-                controller: _searchController,
-                onChanged: (value) => setState(() => _searchQuery = value),
-                decoration: const InputDecoration(
-                  hintText: 'Search memories...',
-                  prefixIcon: Icon(Icons.search, color: Color(0xFF91A6FF)),
-                  border: InputBorder.none,
-                  contentPadding: EdgeInsets.symmetric(vertical: 15),
+          preferredSize: const Size.fromHeight(140),
+          child: Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 8.0),
+                child: ClayContainer(
+                  color: Theme.of(context).scaffoldBackgroundColor,
+                  borderRadius: 20,
+                  depth: 8,
+                  spread: 4,
+                  child: TextField(
+                    controller: _searchController,
+                    onChanged: (value) => setState(() => _searchQuery = value),
+                    decoration: const InputDecoration(
+                      hintText: 'Search moments...',
+                      prefixIcon: Icon(Icons.search, color: Color(0xFF91A6FF)),
+                      border: InputBorder.none,
+                      contentPadding: EdgeInsets.symmetric(vertical: 15),
+                    ),
+                  ),
                 ),
               ),
-            ),
+              FutureBuilder<List<String>>(
+                future: DatabaseHelper.instance.getCategories(),
+                builder: (context, snapshot) {
+                  if (!snapshot.hasData) return const SizedBox.shrink();
+                  final categories = ['All', ...snapshot.data!];
+                  return SizedBox(
+                    height: 50,
+                    child: ListView.builder(
+                      scrollDirection: Axis.horizontal,
+                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+                      itemCount: categories.length,
+                      itemBuilder: (context, index) {
+                        final category = categories[index];
+                        final isSelected = (category == 'All' && _selectedCategoryFilter == null) ||
+                            _selectedCategoryFilter == category;
+                        return Padding(
+                          padding: const EdgeInsets.only(right: 12),
+                          child: GestureDetector(
+                            onTap: () {
+                              setState(() {
+                                _selectedCategoryFilter = category == 'All' ? null : category;
+                              });
+                            },
+                            child: ClayContainer(
+                              color: isSelected ? const Color(0xFF91A6FF) : Theme.of(context).scaffoldBackgroundColor,
+                              borderRadius: 12,
+                              depth: isSelected ? 2 : 4,
+                              spread: 1,
+                              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                              child: Center(
+                                child: Text(
+                                  category,
+                                  style: TextStyle(
+                                    color: isSelected ? Colors.white : const Color(0xFF4A4A4A),
+                                    fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                                    fontSize: 13,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  );
+                },
+              ),
+              const SizedBox(height: 8),
+            ],
           ),
         ),
       ),
       body: FutureBuilder<List<Message>>(
-        future: _searchQuery.isEmpty
-            ? DatabaseHelper.instance.getAllMessages()
-            : DatabaseHelper.instance.searchMessages(_searchQuery),
+        future: DatabaseHelper.instance.searchMessages(_searchQuery, category: _selectedCategoryFilter),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
@@ -112,7 +163,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 children: [
                   Icon(Icons.bubble_chart_outlined, size: 80, color: const Color(0xFF91A6FF).withOpacity(0.3)),
                   const SizedBox(height: 16),
-                  Text('No memories yet...', style: TextStyle(color: Colors.grey[600], fontSize: 18, fontWeight: FontWeight.w500)),
+                  Text('No moments yet...', style: TextStyle(color: Colors.grey[600], fontSize: 18, fontWeight: FontWeight.w500)),
                 ],
               ),
             );
@@ -182,6 +233,24 @@ class _HomeScreenState extends State<HomeScreen> {
                                 ),
                               ],
                             ),
+                            if (message.category != null) ...[
+                              const SizedBox(height: 8),
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFF91A6FF).withOpacity(0.1),
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                child: Text(
+                                  message.category!,
+                                  style: const TextStyle(
+                                    color: Color(0xFF91A6FF),
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ),
+                            ],
                             const SizedBox(height: 12),
                             Text(
                               message.content,
@@ -189,16 +258,36 @@ class _HomeScreenState extends State<HomeScreen> {
                               maxLines: 2,
                               overflow: TextOverflow.ellipsis,
                             ),
-                            if (message.imagePath != null) ...[
+                            if (message.imagePaths.isNotEmpty) ...[
                               const SizedBox(height: 16),
                               ClipRRect(
                                 borderRadius: BorderRadius.circular(20),
-                                child: Image.file(
-                                  File(message.imagePath!),
-                                  height: 160,
-                                  width: double.infinity,
-                                  fit: BoxFit.cover,
-                                  errorBuilder: (c, e, s) => const SizedBox.shrink(),
+                                child: Stack(
+                                  children: [
+                                    Image.file(
+                                      File(message.imagePaths.first),
+                                      height: 160,
+                                      width: double.infinity,
+                                      fit: BoxFit.cover,
+                                      errorBuilder: (c, e, s) => const SizedBox.shrink(),
+                                    ),
+                                    if (message.imagePaths.length > 1)
+                                      Positioned(
+                                        right: 12,
+                                        bottom: 12,
+                                        child: Container(
+                                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                                          decoration: BoxDecoration(
+                                            color: Colors.black54,
+                                            borderRadius: BorderRadius.circular(12),
+                                          ),
+                                          child: Text(
+                                            '+${message.imagePaths.length - 1}',
+                                            style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
+                                          ),
+                                        ),
+                                      ),
+                                  ],
                                 ),
                               ),
                             ],

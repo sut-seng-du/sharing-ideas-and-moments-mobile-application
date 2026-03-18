@@ -4,14 +4,16 @@ class Message {
   final int? id;
   final String title;
   final String content;
-  final String? imagePath;
+  final List<String> imagePaths;
+  final String? category;
   final DateTime createdAt;
 
   Message({
     this.id,
     required this.title,
     required this.content,
-    this.imagePath,
+    this.imagePaths = const [],
+    this.category,
     required this.createdAt,
   });
 
@@ -20,7 +22,8 @@ class Message {
       'id': id,
       'title': title,
       'content': content,
-      'imagePath': imagePath,
+      'imagePaths': jsonEncode(imagePaths),
+      'category': category,
       'createdAt': createdAt.toIso8601String(),
     };
   }
@@ -30,7 +33,10 @@ class Message {
       id: map['id'],
       title: map['title'],
       content: map['content'],
-      imagePath: map['imagePath'],
+      imagePaths: map['imagePaths'] != null 
+          ? List<String>.from(jsonDecode(map['imagePaths'])) 
+          : [],
+      category: map['category'],
       createdAt: DateTime.parse(map['createdAt']),
     );
   }
@@ -39,14 +45,16 @@ class Message {
     int? id,
     String? title,
     String? content,
-    String? imagePath,
+    List<String>? imagePaths,
+    String? category,
     DateTime? createdAt,
   }) {
     return Message(
       id: id ?? this.id,
       title: title ?? this.title,
       content: content ?? this.content,
-      imagePath: imagePath ?? this.imagePath,
+      imagePaths: imagePaths ?? this.imagePaths,
+      category: category ?? this.category,
       createdAt: createdAt ?? this.createdAt,
     );
   }
