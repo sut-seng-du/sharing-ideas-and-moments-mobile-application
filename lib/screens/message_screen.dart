@@ -63,7 +63,7 @@ class _MessageScreenState extends State<MessageScreen> {
         title: const Text('New Category'),
         content: TextField(
           controller: controller,
-          decoration: const InputDecoration(hintText: 'Category Name (e.g. 🎒 Travel)'),
+          decoration: const InputDecoration(hintText: 'Category Name (e.g. Travel)'),
           autofocus: true,
         ),
         actions: [

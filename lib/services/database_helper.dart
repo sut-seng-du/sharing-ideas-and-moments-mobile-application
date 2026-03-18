@@ -45,7 +45,7 @@ class DatabaseHelper {
       // Add default categories if table is empty
       final categoryCount = Sqflite.firstIntValue(await db.rawQuery('SELECT COUNT(*) FROM categories'));
       if (categoryCount == 0) {
-        final defaultCategories = ["💡 Idea", "📸 Moment", "📝 Note", "🌟 Important"];
+        final defaultCategories = ["Idea", "Moment", "Note", "Important"];
         for (final category in defaultCategories) {
           await db.insert('categories', {'name': category});
         }
@@ -100,7 +100,7 @@ CREATE TABLE categories (
 ''');
 
     // Add default categories
-    final defaultCategories = ["💡 Idea", "📸 Moment", "📝 Note", "🌟 Important"];
+    final defaultCategories = ["Idea", "Moment", "Note", "Important"];
     for (final category in defaultCategories) {
       await db.insert('categories', {'name': category});
     }
@@ -202,7 +202,7 @@ CREATE TABLE categories (
 
   Future<void> _cleanupUnusedCategories() async {
     final db = await instance.database;
-    final primaryCategories = ["💡 Idea", "📸 Moment", "📝 Note", "🌟 Important"];
+    final primaryCategories = ["Idea", "Moment", "Note", "Important"];
     
     // De-duplicate: Delete from categories table if NOT primary AND NOT used in any message
     await db.execute('''
