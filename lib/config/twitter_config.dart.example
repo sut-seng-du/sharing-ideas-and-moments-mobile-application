@@ -1,0 +1,7 @@
+class TwitterConfig {
+  static const String clientId = 'YOUR_CLIENT_ID_HERE';
+  
+  // Note: These are for OAuth 1.0a (Legacy/Media) if ever needed again
+  static const String consumerKey = 'YOUR_CONSUMER_KEY_HERE';
+  static const String consumerSecret = 'YOUR_CONSUMER_SECRET_HERE';
+}

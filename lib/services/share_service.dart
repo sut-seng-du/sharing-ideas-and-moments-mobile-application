@@ -6,12 +6,12 @@ class ShareService {
     if (message.imagePaths.isNotEmpty) {
       await Share.shareXFiles(
         message.imagePaths.map((path) => XFile(path)).toList(),
-        text: message.content,
+        text: '${message.title}\n\n${message.content}',
         subject: message.title,
       );
     } else {
       await Share.share(
-        message.content,
+        '${message.title}\n\n${message.content}',
         subject: message.title,
       );
     }

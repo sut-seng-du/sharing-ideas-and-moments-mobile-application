@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'screens/home_screen.dart';
+import 'services/twitter_service.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
+  TwitterService.initDeepLinkListener(); // Listen globally so callbacks resolve authenticate()
   runApp(const MyApp());
 }
 

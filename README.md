@@ -7,11 +7,11 @@
 
 ---
 
-## 🎨 Design Philosophy: Claymorphism
+## Design Philosophy: Claymorphism
 
 SIM stands out with its **Claymorphism** UI—a blend of soft shadows, rounded corners, and pastel colors (like our signature `#91A6FF` blue). This design choice makes the digital interface feel physical and approachable, encouraging users to interact with their "moments."
 
-## 📱 Screenshots
+## Screenshots
 
 <div align="center">
   <h3>Home & Features</h3>
@@ -30,16 +30,37 @@ SIM stands out with its **Claymorphism** UI—a blend of soft shadows, rounded c
   <img src="assets/screenshots/new_moment_empty.jpg" width="200" alt="New Moment Input">
 </div>
 
-## ✨ Key Features
+## Key Features
 
-- 📝 **Capture Moments**: Create title-based posts with rich content.
-- 🖼️ **Multimedia Support**: Attach multiple images to your memories.
-- 📂 **Categorization**: Organize your thoughts with custom categories.
-- 🔍 **Smart Search**: Quickly find past moments using the built-in search functionality.
-- 📤 **Social Sharing**: Share your curated ideas and moments with friends via system sharing.
-- 🔒 **Local Storage**: All data is stored securely on-device using `sqflite`, ensuring your privacy.
+- **Capture Moments**: Create title-based posts with rich content.
+- **Multimedia Support**: Attach multiple images to your memories.
+- **Categorization**: Organize your thoughts with custom categories.
+- **Smart Search**: Quickly find past moments using the built-in search functionality.
+- **X (Twitter) Auto-Upload**: Post your moments directly to X with a single click (Supports Text + Images).
+- **Social Sharing**: Enhanced system sharing that includes titles and images for high-quality cross-platform posting.
+- **Local Storage**: All data is stored securely on-device using `sqflite`, ensuring your privacy.
 
-## 🛠️ Technical Stack
+## X (Twitter) Integration Setup
+
+> [!WARNING]
+> **A Paid X API Plan is Required.**
+> As of 2026, the X Free tier does NOT support automated posting or media uploads. You must have a **Basic** or **Pro** developer plan to use the "Auto-Upload" feature in this app.
+
+The app uses **OAuth 2.0 PKCE** for a secure, modern connection to X.
+
+### 1. Configure API Credentials
+For security, API keys are NOT stored in the repository. Follow these steps:
+1.  Locate `lib/config/twitter_config.dart.example`.
+2.  Duplicate it and rename the copy to `lib/config/twitter_config.dart`.
+3.  Open the new file and fill in your **Client ID**, **Consumer Key**, and **Consumer Secret** from the [X Developer Portal](https://developer.twitter.com/).
+
+> [!IMPORTANT]
+> `lib/config/twitter_config.dart` is automatically added to `.gitignore` to protect your paid account credits from being stolen on GitHub.
+
+### 2. Android Deep Link Setup
+The app uses `sim-app://callback` for OAuth redirection. This is already configured in `AndroidManifest.xml`. Ensure your X Developer App has this callback URL whitelisted in the "User Authentication" settings.
+
+## Technical Stack
 
 - **Framework**: [Flutter](https://flutter.dev) (Dart)
 - **Database**: [sqflite](https://pub.dev/packages/sqflite) for high-performance local persistence.
@@ -49,7 +70,7 @@ SIM stands out with its **Claymorphism** UI—a blend of soft shadows, rounded c
   - `share_plus` for native sharing capabilities.
   - `intl` for clean date and time formatting.
 
-## 🚀 Getting Started
+## Getting Started
 
 This project is optimized for **Mobile platforms (Android and iOS)**.
 
@@ -77,14 +98,14 @@ This project is optimized for **Mobile platforms (Android and iOS)**.
 
 ---
 
-## 📱 Platform Support
+## Platform Support
 
-- ✅ **Android**: Fully supported and tested.
-- ✅ **iOS**: Fully supported and tested.
-- ❌ **Web/Desktop**: These platforms have been intentionally removed to keep the mobile experience lightweight and focused.
+- **Android**: Fully supported and tested.
+- **iOS**: Fully supported and tested.
+- **Web/Desktop**: These platforms have been intentionally removed to keep the mobile experience lightweight and focused.
 
 ---
 
-## 📄 License
+## License
 
 This project is private and for internal use.

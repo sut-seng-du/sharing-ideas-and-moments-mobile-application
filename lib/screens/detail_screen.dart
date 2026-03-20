@@ -4,12 +4,82 @@ import 'dart:io';
 import '../models/message.dart';
 import '../services/database_helper.dart';
 import '../services/share_service.dart';
+import '../services/twitter_service.dart';
 import '../widgets/clay_container.dart';
 import 'message_screen.dart';
 
 class DetailScreen extends StatelessWidget {
   final int messageId;
   const DetailScreen({super.key, required this.messageId});
+
+  Future<void> _handleTwitterUpload(BuildContext context, Message message) async {
+    try {
+      if (!await TwitterService.isConnected()) {
+        final proceed = await showDialog<bool>(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Text('X Authentication'),
+            content: const Text('You need to log in to X to auto-upload. Would you like to log in now?'),
+            actions: [
+              TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('CANCEL')),
+              TextButton(onPressed: () => Navigator.pop(context, true), child: const Text('LOG IN')),
+            ],
+          ),
+        );
+        
+        if (proceed != true) return;
+
+        // Show loading during authentication
+        if (context.mounted) {
+          showDialog(
+            context: context,
+            barrierDismissible: false,
+            builder: (context) => const Center(child: CircularProgressIndicator()),
+          );
+        }
+
+        await TwitterService.authenticate();
+        
+        // Check connection again
+        if (!await TwitterService.isConnected()) {
+          if (context.mounted) {
+            Navigator.pop(context); // Close loading
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Authentication failed or was cancelled.')),
+            );
+          }
+          return;
+        }
+
+        // If authenticated, we continue below to post the message
+      } else {
+        // Show loading if already connected
+        if (context.mounted) {
+          showDialog(
+            context: context,
+            barrierDismissible: false,
+            builder: (context) => const Center(child: CircularProgressIndicator()),
+          );
+        }
+      }
+
+      await TwitterService.postMessage(message);
+
+      if (context.mounted) {
+        if (Navigator.canPop(context)) Navigator.pop(context); // Close loading
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Successfully posted to X!'), backgroundColor: Colors.green),
+        );
+      }
+    } catch (e) {
+      if (context.mounted) {
+        if (Navigator.canPop(context)) Navigator.pop(context); // Close loading if open
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red),
+        );
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -34,6 +104,10 @@ class DetailScreen extends StatelessWidget {
               _ActionButton(
                 icon: Icons.share,
                 onPressed: () => ShareService.shareMessage(message),
+              ),
+              _ActionButton(
+                icon: Icons.rocket_launch, // Using rocket as a placeholder for "X" speed/auto-upload
+                onPressed: () => _handleTwitterUpload(context, message),
               ),
               _ActionButton(
                 icon: Icons.edit,
