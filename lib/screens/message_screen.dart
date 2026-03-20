@@ -46,12 +46,37 @@ class _MessageScreenState extends State<MessageScreen> {
   }
 
   Future<void> _pickImage(bool fromCamera) async {
-    final path = fromCamera
-        ? await _imageService.takePhoto()
-        : await _imageService.pickImageFromGallery();
-    
-    if (path != null) {
-      setState(() => _imagePaths.add(path));
+    if (_imagePaths.length >= 4) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('X supports only up to 4 photos per moment.')),
+        );
+      }
+      return;
+    }
+
+    if (fromCamera) {
+      final path = await _imageService.takePhoto();
+      if (path != null) {
+        setState(() => _imagePaths.add(path));
+      }
+    } else {
+      final paths = await _imageService.pickMultiImage();
+      if (paths.isNotEmpty) {
+        setState(() {
+          final remaining = 4 - _imagePaths.length;
+          if (paths.length > remaining) {
+            _imagePaths.addAll(paths.take(remaining));
+            if (mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text('Added $remaining photos. X limit is 4 photos per moment.')),
+              );
+            }
+          } else {
+            _imagePaths.addAll(paths);
+          }
+        });
+      }
     }
   }
 
@@ -116,7 +141,7 @@ class _MessageScreenState extends State<MessageScreen> {
               onTap: _saveMessage,
               behavior: HitTestBehavior.opaque,
               child: ClayContainer(
-                color: const Color(0xFF91A6FF),
+                color: const Color(0xFF0E608E),
                 borderRadius: 12,
                 depth: 4,
                 spread: 2,
@@ -170,7 +195,7 @@ class _MessageScreenState extends State<MessageScreen> {
                             depth: 6,
                             spread: 3,
                             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                            child: const Icon(Icons.add, size: 20, color: Color(0xFF91A6FF)),
+                            child: const Icon(Icons.add, size: 20, color: Color(0xFF0E608E)),
                           ),
                         ),
                       ),
@@ -185,7 +210,7 @@ class _MessageScreenState extends State<MessageScreen> {
                               });
                             },
                             child: ClayContainer(
-                              color: isSelected ? const Color(0xFF91A6FF) : Theme.of(context).scaffoldBackgroundColor,
+                              color: isSelected ? const Color(0xFF0E608E) : Theme.of(context).scaffoldBackgroundColor,
                               borderRadius: 15,
                               depth: isSelected ? 2 : 6,
                               spread: 3,
@@ -312,7 +337,7 @@ class _MediaButton extends StatelessWidget {
           padding: const EdgeInsets.symmetric(vertical: 20),
           child: Column(
             children: [
-              Icon(icon, color: const Color(0xFF91A6FF), size: 28),
+              Icon(icon, color: const Color(0xFF0E608E), size: 28),
               const SizedBox(height: 8),
               Text(label, style: const TextStyle(color: Color(0xFF4A4A4A), fontWeight: FontWeight.w700)),
             ],

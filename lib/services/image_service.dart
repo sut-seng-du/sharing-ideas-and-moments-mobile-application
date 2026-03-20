@@ -12,4 +12,9 @@ class ImageService {
     final XFile? image = await _picker.pickImage(source: ImageSource.camera);
     return image?.path;
   }
+
+  Future<List<String>> pickMultiImage() async {
+    final List<XFile> images = await _picker.pickMultiImage();
+    return images.map((image) => image.path).toList();
+  }
 }

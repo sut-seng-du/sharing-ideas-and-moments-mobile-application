@@ -65,9 +65,45 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        toolbarHeight: 80,
         title: _isSelectionMode
             ? Text('${_selectedIds.length} selected')
-            : const Text('Sharing Ideas and Moments', style: TextStyle(fontWeight: FontWeight.w900, fontSize: 22)),
+            : Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Container(
+                        width: 4,
+                        height: 24,
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFF8A41E),
+                          borderRadius: BorderRadius.circular(2),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      const Text(
+                        'SIM',
+                        style: TextStyle(
+                          fontSize: 28,
+                          fontWeight: FontWeight.w900,
+                          color: Color(0xFF0E608E),
+                          letterSpacing: -1,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const Text(
+                    'Sharing Ideas and Moments',
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                      color: Color(0xFF8A8A8A),
+                      letterSpacing: 0.5,
+                    ),
+                  ),
+                ],
+              ),
         actions: [
           if (_isSelectionMode)
             IconButton(
@@ -91,7 +127,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     onChanged: (value) => setState(() => _searchQuery = value),
                     decoration: const InputDecoration(
                       hintText: 'Search moments...',
-                      prefixIcon: Icon(Icons.search, color: Color(0xFF91A6FF)),
+                      prefixIcon: const Icon(Icons.search, color: Color(0xFF0E608E)),
                       border: InputBorder.none,
                       contentPadding: EdgeInsets.symmetric(vertical: 15),
                     ),
@@ -122,7 +158,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               });
                             },
                             child: ClayContainer(
-                              color: isSelected ? const Color(0xFF91A6FF) : Theme.of(context).scaffoldBackgroundColor,
+                              color: isSelected ? const Color(0xFF0E608E) : Theme.of(context).scaffoldBackgroundColor,
                               borderRadius: 12,
                               depth: isSelected ? 2 : 4,
                               spread: 1,
@@ -161,7 +197,7 @@ class _HomeScreenState extends State<HomeScreen> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.bubble_chart_outlined, size: 80, color: const Color(0xFF91A6FF).withOpacity(0.3)),
+                  Icon(Icons.bubble_chart_outlined, size: 80, color: const Color(0xFF0E608E).withOpacity(0.3)),
                   const SizedBox(height: 16),
                   Text('No moments yet...', style: TextStyle(color: Colors.grey[600], fontSize: 18, fontWeight: FontWeight.w500)),
                 ],
@@ -223,12 +259,12 @@ class _HomeScreenState extends State<HomeScreen> {
                                 Container(
                                   padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                                   decoration: BoxDecoration(
-                                    color: const Color(0xFF91A6FF).withOpacity(0.1),
+                                    color: const Color(0xFF0E608E).withOpacity(0.1),
                                     borderRadius: BorderRadius.circular(20),
                                   ),
                                   child: Text(
                                     DateFormat('MMM d').format(message.createdAt),
-                                    style: const TextStyle(color: Color(0xFF91A6FF), fontSize: 10, fontWeight: FontWeight.bold),
+                                    style: const TextStyle(color: Color(0xFF0E608E), fontSize: 10, fontWeight: FontWeight.bold),
                                   ),
                                 ),
                               ],
@@ -238,7 +274,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               Container(
                                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                                 decoration: BoxDecoration(
-                                  color: const Color(0xFF91A6FF).withOpacity(0.1),
+                                  color: const Color(0xFF0E608E).withOpacity(0.1),
                                   borderRadius: BorderRadius.circular(10),
                                 ),
                                 child: Text(
@@ -305,7 +341,7 @@ class _HomeScreenState extends State<HomeScreen> {
       floatingActionButton: Padding(
         padding: const EdgeInsets.all(8.0),
         child: ClayContainer(
-          color: const Color(0xFF91A6FF),
+          color: const Color(0xFFF8A41E),
           borderRadius: 50,
           depth: 10,
           spread: 5,

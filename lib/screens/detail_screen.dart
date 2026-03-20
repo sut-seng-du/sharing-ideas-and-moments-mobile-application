@@ -144,11 +144,79 @@ class DetailScreen extends StatelessWidget {
             ],
           ),
           body: SingleChildScrollView(
-            padding: const EdgeInsets.all(24),
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                Text(
+                  message.title,
+                  style: const TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.w900, 
+                    color: Color(0xFF0E608E),
+                    letterSpacing: -0.5,
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 12.0),
+                  child: SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    clipBehavior: Clip.none,
+                    padding: const EdgeInsets.symmetric(vertical: 4),
+                    child: Row(
+                      children: [
+                        ClayContainer(
+                          color: Theme.of(context).scaffoldBackgroundColor,
+                          borderRadius: 12,
+                          depth: 4,
+                          spread: 2,
+                          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const Icon(Icons.calendar_today, size: 12, color: Color(0xFF0E608E)),
+                              const SizedBox(width: 8),
+                              Text(
+                                DateFormat('MMM d, yyyy • h:mm a').format(message.createdAt),
+                                style: const TextStyle(color: Color(0xFF4A4A4A), fontSize: 13, fontWeight: FontWeight.w600),
+                              ),
+                            ],
+                          ),
+                        ),
+                        if (message.category != null) ...[
+                          const SizedBox(width: 16),
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFF0E608E).withOpacity(0.1),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Text(
+                              message.category!,
+                              style: const TextStyle(
+                                color: Color(0xFF0E608E),
+                                fontSize: 12,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  message.content,
+                  style: const TextStyle(
+                    fontSize: 17, 
+                    height: 1.6, 
+                    color: Color(0xFF4A4A4A), 
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
                 if (message.imagePaths.isNotEmpty) ...[
+                  const SizedBox(height: 40),
                   SizedBox(
                     height: 300,
                     child: ListView.builder(
@@ -162,8 +230,9 @@ class DetailScreen extends StatelessWidget {
                             child: ClayContainer(
                               color: Theme.of(context).scaffoldBackgroundColor,
                               borderRadius: 30,
-                              depth: 15,
-                              spread: 7,
+                              depth: 12,
+                              spread: 6,
+                              border: Border.all(color: const Color(0xFF0E608E), width: 1.5),
                               child: ClipRRect(
                                 borderRadius: BorderRadius.circular(30),
                                 child: Image.file(
@@ -179,72 +248,7 @@ class DetailScreen extends StatelessWidget {
                       },
                     ),
                   ),
-                  const SizedBox(height: 32),
                 ],
-                Text(
-                  message.title,
-                  style: const TextStyle(fontSize: 28, fontWeight: FontWeight.w900, color: Color(0xFF4A4A4A)),
-                ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 8.0),
-                  child: SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    clipBehavior: Clip.none,
-                    padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 4), // Extra vertical space for shadows
-                    child: Row(
-                      children: [
-                        ClayContainer(
-                          color: Theme.of(context).scaffoldBackgroundColor,
-                          borderRadius: 12,
-                          depth: 6, // Increased depth for better 3d
-                          spread: 3,
-                          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              const Icon(Icons.calendar_today, size: 14, color: Color(0xFF91A6FF)),
-                              const SizedBox(width: 8),
-                              Text(
-                                DateFormat('MMM d, yyyy • h:mm a').format(message.createdAt),
-                                style: const TextStyle(color: Color(0xFF4A4A4A), fontSize: 13, fontWeight: FontWeight.w600),
-                              ),
-                            ],
-                          ),
-                        ),
-                        if (message.category != null) ...[
-                          const SizedBox(width: 24),
-                          ClayContainer(
-                            color: const Color(0xFF91A6FF),
-                            borderRadius: 12,
-                            depth: 6, // Increased depth for better 3d
-                            spread: 3,
-                            padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
-                            child: Text(
-                              message.category!,
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 13,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ],
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 12),
-                ClayContainer(
-                  color: Theme.of(context).scaffoldBackgroundColor,
-                  borderRadius: 20,
-                  depth: 5,
-                  spread: 3,
-                  padding: const EdgeInsets.all(24),
-                  child: Text(
-                    message.content,
-                    style: const TextStyle(fontSize: 17, height: 1.7, color: Color(0xFF4A4A4A)),
-                  ),
-                ),
               ],
             ),
           ),

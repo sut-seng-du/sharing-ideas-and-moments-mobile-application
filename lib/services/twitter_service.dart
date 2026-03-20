@@ -147,12 +147,12 @@ class TwitterService {
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
         // Some X implementations require Basic Auth for confidential clients
-        'Authorization': 'Basic ${base64Encode(utf8.encode('${TwitterConfig.clientId}:${TwitterConfig.clientSecret}'))}',
+        'Authorization': 'Basic ${base64Encode(utf8.encode('$_clientId:${TwitterConfig.clientSecret}'))}',
       },
       body: {
         'grant_type': 'authorization_code',
         'code': code,
-        'client_id': TwitterConfig.clientId, // Some still require it in body too
+        'client_id': _clientId, // Some still require it in body too
         'redirect_uri': _callbackUrl,
         'code_verifier': codeVerifier,
       },
@@ -231,7 +231,7 @@ class TwitterService {
           Uri.parse('https://api.x.com/2/media/upload/initialize'),
           headers: {
             'Authorization': 'Bearer $token',
-            'X-Client-Id': TwitterConfig.clientId,
+            'X-Client-Id': _clientId,
             'Content-Type': 'application/json',
           },
           body: jsonEncode({
@@ -262,7 +262,7 @@ class TwitterService {
         
         final appendRequest = http.MultipartRequest('POST', appendUrl);
         appendRequest.headers['Authorization'] = 'Bearer $token';
-        appendRequest.headers['X-Client-Id'] = TwitterConfig.clientId;
+        appendRequest.headers['X-Client-Id'] = _clientId;
         
         appendRequest.fields['segment_index'] = '0';
         appendRequest.files.add(await http.MultipartFile.fromPath('media', path));
@@ -283,7 +283,7 @@ class TwitterService {
           finalizeUrl,
           headers: {
             'Authorization': 'Bearer $token',
-            'X-Client-Id': TwitterConfig.clientId,
+            'X-Client-Id': _clientId,
           },
         );
 
