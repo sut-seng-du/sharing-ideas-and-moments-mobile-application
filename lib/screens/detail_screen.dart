@@ -65,6 +65,11 @@ class DetailScreen extends StatelessWidget {
 
       await TwitterService.postMessage(message);
 
+      // --- Update Status ---
+      await DatabaseHelper.instance.updateMessage(
+        message.copyWith(isUploaded: true),
+      );
+
       if (context.mounted) {
         if (Navigator.canPop(context)) Navigator.pop(context); // Close loading
         ScaffoldMessenger.of(context).showSnackBar(
@@ -106,7 +111,8 @@ class DetailScreen extends StatelessWidget {
                 onPressed: () => ShareService.shareMessage(message),
               ),
               _ActionButton(
-                icon: Icons.rocket_launch, // Using rocket as a placeholder for "X" speed/auto-upload
+                icon: Icons.rocket_launch, 
+                color: message.isUploaded ? Colors.green : const Color(0xFF4A4A4A),
                 onPressed: () => _handleTwitterUpload(context, message),
               ),
               _ActionButton(
@@ -201,6 +207,32 @@ class DetailScreen extends StatelessWidget {
                             ),
                           ),
                         ],
+                        if (message.isUploaded) ...[
+                          const SizedBox(width: 16),
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                            decoration: BoxDecoration(
+                              color: Colors.green.withOpacity(0.1),
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(color: Colors.green.withOpacity(0.3)),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: const [
+                                Icon(Icons.check_circle, size: 14, color: Colors.green),
+                                SizedBox(width: 6),
+                                Text(
+                                  "Uploaded on X",
+                                  style: TextStyle(
+                                    color: Colors.green,
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
                       ],
                     ),
                   ),
@@ -260,9 +292,10 @@ class DetailScreen extends StatelessWidget {
 
 class _ActionButton extends StatelessWidget {
   final IconData icon;
+  final Color? color;
   final VoidCallback onPressed;
 
-  const _ActionButton({required this.icon, required this.onPressed});
+  const _ActionButton({required this.icon, this.color, required this.onPressed});
 
   @override
   Widget build(BuildContext context) {
@@ -274,7 +307,7 @@ class _ActionButton extends StatelessWidget {
         depth: 4,
         spread: 2,
         child: IconButton(
-          icon: Icon(icon, color: const Color(0xFF4A4A4A), size: 20),
+          icon: Icon(icon, color: color ?? const Color(0xFF4A4A4A), size: 20),
           onPressed: onPressed,
         ),
       ),

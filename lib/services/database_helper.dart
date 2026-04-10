@@ -21,7 +21,7 @@ class DatabaseHelper {
 
     return await openDatabase(
       path,
-      version: 3,
+      version: 4,
       onCreate: _createDB,
       onUpgrade: _onUpgrade,
     );
@@ -69,6 +69,11 @@ class DatabaseHelper {
         }
       }
     }
+    if (oldVersion < 4) {
+      if (!(await _columnExists(db, 'messages', 'isUploaded'))) {
+        await db.execute('ALTER TABLE messages ADD COLUMN isUploaded INTEGER DEFAULT 0');
+      }
+    }
   }
 
   Future<bool> _columnExists(Database db, String table, String column) async {
@@ -88,7 +93,8 @@ CREATE TABLE messages (
   content $textType,
   imagePaths $textNullable,
   category $textNullable,
-  createdAt $textType
+  createdAt $textType,
+  isUploaded INTEGER DEFAULT 0
 )
 ''');
 
@@ -121,7 +127,7 @@ CREATE TABLE categories (
     final db = await instance.database;
     final maps = await db.query(
       'messages',
-      columns: ['id', 'title', 'content', 'imagePaths', 'category', 'createdAt'],
+      columns: ['id', 'title', 'content', 'imagePaths', 'category', 'createdAt', 'isUploaded'],
       where: 'id = ?',
       whereArgs: [id],
     );

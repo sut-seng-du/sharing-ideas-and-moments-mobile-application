@@ -262,9 +262,18 @@ class _HomeScreenState extends State<HomeScreen> {
                                     color: const Color(0xFF0E608E).withOpacity(0.1),
                                     borderRadius: BorderRadius.circular(20),
                                   ),
-                                  child: Text(
-                                    DateFormat('MMM d').format(message.createdAt),
-                                    style: const TextStyle(color: Color(0xFF0E608E), fontSize: 10, fontWeight: FontWeight.bold),
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      if (message.isUploaded) ...[
+                                        const Icon(Icons.check_circle, size: 10, color: Colors.green),
+                                        const SizedBox(width: 4),
+                                      ],
+                                      Text(
+                                        DateFormat('MMM d').format(message.createdAt),
+                                        style: const TextStyle(color: Color(0xFF0E608E), fontSize: 10, fontWeight: FontWeight.bold),
+                                      ),
+                                    ],
                                   ),
                                 ),
                               ],

@@ -7,6 +7,7 @@ class Message {
   final List<String> imagePaths;
   final String? category;
   final DateTime createdAt;
+  final bool isUploaded;
 
   Message({
     this.id,
@@ -15,6 +16,7 @@ class Message {
     this.imagePaths = const [],
     this.category,
     required this.createdAt,
+    this.isUploaded = false,
   });
 
   Map<String, dynamic> toMap() {
@@ -25,6 +27,7 @@ class Message {
       'imagePaths': jsonEncode(imagePaths),
       'category': category,
       'createdAt': createdAt.toIso8601String(),
+      'isUploaded': isUploaded ? 1 : 0,
     };
   }
 
@@ -38,6 +41,7 @@ class Message {
           : [],
       category: map['category'],
       createdAt: DateTime.parse(map['createdAt']),
+      isUploaded: map['isUploaded'] == 1,
     );
   }
 
@@ -48,6 +52,7 @@ class Message {
     List<String>? imagePaths,
     String? category,
     DateTime? createdAt,
+    bool? isUploaded,
   }) {
     return Message(
       id: id ?? this.id,
@@ -56,6 +61,7 @@ class Message {
       imagePaths: imagePaths ?? this.imagePaths,
       category: category ?? this.category,
       createdAt: createdAt ?? this.createdAt,
+      isUploaded: isUploaded ?? this.isUploaded,
     );
   }
 }
