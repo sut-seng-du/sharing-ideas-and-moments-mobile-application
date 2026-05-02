@@ -10,7 +10,8 @@ import 'message_screen.dart';
 
 class DetailScreen extends StatelessWidget {
   final int messageId;
-  const DetailScreen({super.key, required this.messageId});
+  final Message? initialMessage;
+  const DetailScreen({super.key, required this.messageId, this.initialMessage});
 
   Future<void> _handleTwitterUpload(BuildContext context, Message message) async {
     try {
@@ -45,7 +46,11 @@ class DetailScreen extends StatelessWidget {
           if (context.mounted) {
             Navigator.pop(context); // Close loading
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Authentication failed or was cancelled.')),
+              const SnackBar(
+                content: Text('Authentication failed or was cancelled.'),
+                behavior: SnackBarBehavior.floating,
+                margin: EdgeInsets.only(bottom: 16, left: 16, right: 16),
+              ),
             );
           }
           return;
@@ -73,14 +78,24 @@ class DetailScreen extends StatelessWidget {
       if (context.mounted) {
         if (Navigator.canPop(context)) Navigator.pop(context); // Close loading
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Successfully posted to X!'), backgroundColor: Colors.green),
+          const SnackBar(
+            content: Text('Successfully posted to X!'), 
+            backgroundColor: Colors.green,
+            behavior: SnackBarBehavior.floating,
+            margin: EdgeInsets.only(bottom: 16, left: 16, right: 16),
+          ),
         );
       }
     } catch (e) {
       if (context.mounted) {
         if (Navigator.canPop(context)) Navigator.pop(context); // Close loading if open
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red),
+          SnackBar(
+            content: Text('Error: $e'), 
+            backgroundColor: Colors.red,
+            behavior: SnackBarBehavior.floating,
+            margin: const EdgeInsets.only(bottom: 16, left: 16, right: 16),
+          ),
         );
       }
     }
@@ -89,7 +104,8 @@ class DetailScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<Message?>(
-      future: DatabaseHelper.instance.getMessage(messageId),
+      initialData: initialMessage,
+      future: initialMessage != null ? Future.value(initialMessage) : DatabaseHelper.instance.getMessage(messageId),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Scaffold(body: Center(child: CircularProgressIndicator()));
@@ -141,8 +157,13 @@ class DetailScreen extends StatelessWidget {
                     ),
                   );
                   if (confirmed == true) {
-                    await DatabaseHelper.instance.deleteMessage(messageId);
-                    if (context.mounted) Navigator.pop(context);
+                    final deletedMessage = await DatabaseHelper.instance.getMessage(messageId);
+                    if (deletedMessage != null) {
+                      await DatabaseHelper.instance.deleteMessage(messageId);
+                      if (context.mounted) {
+                        Navigator.pop(context, {'action': 'deleted', 'message': deletedMessage});
+                      }
+                    }
                   }
                 },
               ),

@@ -46,3 +46,9 @@ app.*.map.json
 
 # Secure Configurations
 /lib/config/twitter_config.dart
+
+*.gemini
+report.html
+report.md
+documentation
+/test/

@@ -36,6 +36,9 @@ SIM stands out with its **Claymorphism** UI—a blend of soft shadows, rounded c
 - **Multimedia Support**: Attach multiple images to your memories.
 - **Categorization**: Organize your thoughts with custom categories.
 - **Smart Search**: Quickly find past moments using the built-in search functionality.
+- **Responsive Landscape Grid**: The UI seamlessly adapts to landscape mode by presenting content in a two-column grid.
+- **Tactile Multi-Select**: Effortlessly manage multiple posts with a deep, "pressed" shadow UI effect during selection mode.
+- **Undo Deletion**: Instantly recover accidentally deleted moments with a convenient 4-second Undo SnackBar.
 - **X (Twitter) Auto-Upload**: Post your moments directly to X with a single click (Supports Text + Images).
 - **Social Sharing**: Enhanced system sharing that includes titles and images for high-quality cross-platform posting.
 - **Local Storage**: All data is stored securely on-device using `sqflite`, ensuring your privacy.
