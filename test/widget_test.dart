@@ -9,10 +9,20 @@ void main() {
   databaseFactory = databaseFactoryFfi;
 
   testWidgets('Home screen displays SIM title and Add button', (WidgetTester tester) async {
+    // Set a portrait orientation for the test to ensure title is visible
+    tester.view.physicalSize = const Size(400, 800);
+    tester.view.devicePixelRatio = 1.0;
+    
     await tester.pumpWidget(const MyApp());
+    await tester.pumpAndSettle();
+
     expect(find.text('SIM'), findsOneWidget);
     expect(find.byType(FloatingActionButton), findsOneWidget);
     expect(find.byIcon(Icons.add), findsOneWidget);
+    
+    // Reset view
+    tester.view.resetPhysicalSize();
+    tester.view.resetDevicePixelRatio();
   });
 
   testWidgets('Home screen displays search components', (WidgetTester tester) async {
